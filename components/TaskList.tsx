@@ -15,22 +15,42 @@ export default function TaskList({
     onToggle,
 }: TaskListProps) {
     const [selectedStatus, setSelectedStatus] = useState<string>("Semua");
+    const [selectedCategory, setSelectedCategory] = useState<string>("Semua");
+    const [selectedPriority, setSelectedPriority] = useState<string>("Semua");
 
     const filteredTasks = tasks.filter((task) => {
         if (selectedStatus === "Belum" && task.completed) return false;
         if (selectedStatus === "Selesai" && !task.completed) return false;
+        if (selectedCategory !== "Semua" && (task.category || "Tugas Biasa") !== selectedCategory) return false;
+        if (selectedPriority !== "Semua" && task.aiPriority !== selectedPriority) return false;
         return true;
     });
 
+    const getCategoryBadge = (category?: string) => {
+        switch (category) {
+            case "Kuis":
+                return "bg-purple-50 text-purple-700 border-purple-200";
+            case "Laporan / Makalah":
+                return "bg-amber-50 text-amber-700 border-amber-200";
+            case "Tubes / Project":
+                return "bg-emerald-50 text-emerald-700 border-emerald-200";
+            case "Lainnya":
+                return "bg-zinc-100 text-zinc-700 border-zinc-200";
+            case "Tugas Biasa":
+            default:
+                return "bg-sky-50 text-sky-700 border-sky-200";
+        }
+    };
+
     const getAIPriorityBadge = (p?: AIPriority) => {
         switch (p) {
-            case "kritis":
-                return "bg-rose-100 text-rose-700 border-rose-200";
             case "mendesak":
+                return "bg-rose-100 text-rose-700 border-rose-200";
+            case "tinggi":
                 return "bg-amber-100 text-amber-700 border-amber-200";
-            case "normal":
-                return "bg-blue-100 text-blue-700 border-blue-200";
-            case "santai":
+            case "sedang":
+                return "bg-cyan-100 text-cyan-700 border-cyan-200";
+            case "rendah":
                 return "bg-emerald-100 text-emerald-700 border-emerald-200";
             default:
                 return "bg-slate-100 text-slate-500 border-slate-200";
@@ -39,14 +59,14 @@ export default function TaskList({
 
     const getAIPriorityLabel = (p?: AIPriority) => {
         switch (p) {
-            case "kritis":
-                return "🔴 Kritis";
             case "mendesak":
-                return "🟠 Mendesak";
-            case "normal":
-                return "🔵 Normal";
-            case "santai":
-                return "🟢 Santai";
+                return "🔴 Mendesak";
+            case "tinggi":
+                return "🟠 Tinggi";
+            case "sedang":
+                return "🔵 Sedang";
+            case "rendah":
+                return "🟢 Rendah";
             default:
                 return "⚪ Belum Dijadwalkan";
         }
@@ -86,8 +106,33 @@ export default function TaskList({
                     </p>
                 </div>
 
-                {/* FILTER DROPDOWN */}
+                {/* FILTER DROPDOWNS */}
                 <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <select
+                        value={selectedPriority}
+                        onChange={(e) => setSelectedPriority(e.target.value)}
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 font-semibold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer"
+                    >
+                        <option value="Semua">Semua Prioritas</option>
+                        <option value="mendesak">🔴 Mendesak</option>
+                        <option value="tinggi">🟠 Tinggi</option>
+                        <option value="sedang">🔵 Sedang</option>
+                        <option value="rendah">🟢 Rendah</option>
+                    </select>
+
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 font-semibold text-slate-700 outline-none focus:border-indigo-500 cursor-pointer"
+                    >
+                        <option value="Semua">Semua Kategori</option>
+                        <option value="Kuis">Kuis</option>
+                        <option value="Tugas Biasa">Tugas Biasa</option>
+                        <option value="Laporan / Makalah">Laporan / Makalah</option>
+                        <option value="Tubes / Project">Tubes / Project</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+
                     <select
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
@@ -144,7 +189,7 @@ export default function TaskList({
 
                                 {/* DETAILS */}
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <h3
                                             className={`font-bold text-sm truncate ${
                                                 task.completed
@@ -154,6 +199,16 @@ export default function TaskList({
                                         >
                                             {task.title}
                                         </h3>
+
+                                        {task.category && (
+                                            <span
+                                                className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getCategoryBadge(
+                                                    task.category
+                                                )}`}
+                                            >
+                                                {task.category}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {task.description && (
@@ -176,11 +231,11 @@ export default function TaskList({
                                             <div className="h-1 w-16 rounded-full bg-slate-100 overflow-hidden">
                                                 <div
                                                     className={`h-full rounded-full ${
-                                                        task.aiPriority === "kritis"
+                                                        task.aiPriority === "mendesak"
                                                             ? "bg-rose-500"
-                                                            : task.aiPriority === "mendesak"
+                                                            : task.aiPriority === "tinggi"
                                                             ? "bg-amber-500"
-                                                            : task.aiPriority === "normal"
+                                                            : task.aiPriority === "sedang"
                                                             ? "bg-blue-500"
                                                             : "bg-emerald-500"
                                                     }`}

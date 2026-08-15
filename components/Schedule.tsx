@@ -27,15 +27,31 @@ export default function Schedule({
     const [showAlgorithmInfo, setShowAlgorithmInfo] = useState(false);
     const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
 
+    const getCategoryBadge = (category?: string) => {
+        switch (category) {
+            case "Kuis":
+                return "bg-purple-50 text-purple-700 border-purple-200";
+            case "Laporan / Makalah":
+                return "bg-amber-50 text-amber-700 border-amber-200";
+            case "Tubes / Project":
+                return "bg-emerald-50 text-emerald-700 border-emerald-200";
+            case "Lainnya":
+                return "bg-zinc-100 text-zinc-700 border-zinc-200";
+            case "Tugas Biasa":
+            default:
+                return "bg-sky-50 text-sky-700 border-sky-200";
+        }
+    };
+
     const getPriorityBadge = (p?: AIPriority) => {
         switch (p) {
-            case "kritis":
-                return "bg-rose-100 text-rose-700 border-rose-200";
             case "mendesak":
+                return "bg-rose-100 text-rose-700 border-rose-200";
+            case "tinggi":
                 return "bg-amber-100 text-amber-700 border-amber-200";
-            case "normal":
-                return "bg-blue-100 text-blue-700 border-blue-200";
-            case "santai":
+            case "sedang":
+                return "bg-cyan-100 text-cyan-700 border-cyan-200";
+            case "rendah":
                 return "bg-emerald-100 text-emerald-700 border-emerald-200";
             default:
                 return "bg-slate-100 text-slate-500 border-slate-200";
@@ -44,20 +60,20 @@ export default function Schedule({
 
     const getPriorityLabel = (p?: AIPriority) => {
         switch (p) {
-            case "kritis": return "🔴 Kritis";
-            case "mendesak": return "🟠 Mendesak";
-            case "normal": return "🔵 Normal";
-            case "santai": return "🟢 Santai";
+            case "mendesak": return "🔴 Mendesak";
+            case "tinggi": return "🟠 Tinggi";
+            case "sedang": return "🔵 Sedang";
+            case "rendah": return "🟢 Rendah";
             default: return "⚪ -";
         }
     };
 
     const getPriorityDot = (p?: AIPriority) => {
         switch (p) {
-            case "kritis": return "bg-rose-500";
-            case "mendesak": return "bg-amber-500";
-            case "normal": return "bg-blue-500";
-            case "santai": return "bg-emerald-500";
+            case "mendesak": return "bg-rose-500";
+            case "tinggi": return "bg-amber-500";
+            case "sedang": return "bg-blue-500";
+            case "rendah": return "bg-emerald-500";
             default: return "bg-slate-400";
         }
     };
@@ -199,8 +215,19 @@ export default function Schedule({
                             <div className="flex-1 rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 transition-all hover:bg-white hover:shadow-md">
                                 <div className="flex items-start justify-between gap-3">
                                     <div>
-                                        <div className="inline-flex items-center gap-1 rounded-md bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700 mb-1">
-                                            🕒 {task.start} - {task.end}
+                                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                                            <div className="inline-flex items-center gap-1 rounded-md bg-indigo-100 px-2 py-0.5 text-[11px] font-bold text-indigo-700">
+                                                🕒 {task.start} - {task.end}
+                                            </div>
+                                            {task.category && (
+                                                <span
+                                                    className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${getCategoryBadge(
+                                                        task.category
+                                                    )}`}
+                                                >
+                                                    {task.category}
+                                                </span>
+                                            )}
                                         </div>
                                         <h3 className="font-bold text-slate-900 text-sm">
                                             {task.title}
@@ -373,10 +400,10 @@ export default function Schedule({
                                         </div>
                                         <div className="divide-y divide-slate-100">
                                             {[
-                                                { label: "Kritis", value: "85–100", color: "text-rose-600", bg: "bg-rose-50" },
-                                                { label: "Mendesak", value: "60–84", color: "text-amber-600", bg: "bg-amber-50" },
-                                                { label: "Normal", value: "30–59", color: "text-blue-600", bg: "bg-blue-50" },
-                                                { label: "Santai", value: "0–29", color: "text-emerald-600", bg: "bg-emerald-50" },
+                                                { label: "Mendesak", value: "85–100", color: "text-rose-600", bg: "bg-rose-50" },
+                                                { label: "Tinggi", value: "60–84", color: "text-amber-600", bg: "bg-amber-50" },
+                                                { label: "Sedang", value: "30–59", color: "text-blue-600", bg: "bg-blue-50" },
+                                                { label: "Rendah", value: "0–29", color: "text-emerald-600", bg: "bg-emerald-50" },
                                             ].map((row) => (
                                                 <div
                                                     key={row.label}

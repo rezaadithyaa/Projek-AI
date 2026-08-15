@@ -1,6 +1,6 @@
 // Priority is now determined internally by the AI based on date calculations.
 // It is NOT exposed to the user.
-export type AIPriority = "kritis" | "mendesak" | "normal" | "santai";
+export type AIPriority = "mendesak" | "tinggi" | "sedang" | "rendah";
 
 export interface Task {
     id: number;
@@ -30,4 +30,21 @@ export interface ScheduleResult {
 export interface WorkHours {
     start: string; // e.g. "08:00"
     end: string;   // e.g. "17:00"
+}
+
+export interface SuggestedTask {
+    title: string;
+    description?: string;
+    category?: string;
+    duration: number; // in hours
+    startDate: string;
+    deadlineDate: string;
+}
+
+export interface ChatMessage {
+    id: string;
+    sender: "user" | "ai";
+    text: string;
+    timestamp: string;
+    suggestedTask?: SuggestedTask;
 }

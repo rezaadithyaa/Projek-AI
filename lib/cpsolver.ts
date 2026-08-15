@@ -18,17 +18,27 @@ function daysBetween(from: string, to: string): number {
 
 /**
  * AI Priority Engine
- * Calculates urgency score (0–100) and label based on:
- *  - daysFromStart: days from startDate to today (how overdue the start is)
- *  - daysToDeadline: days remaining until deadline
- *  - totalWindow: total days from startDate to deadlineDate
- * 
- * Logic:
- *  - If deadline has passed          → score 100 (kritis)
- *  - If <25% of window remains       → score 75–99 (mendesak)
- *  - If 25–60% of window remains     → score 40–74 (normal)
- *  - If >60% of window remains       → score 0–39 (santai)
+ * Uses a HYBRID model: the higher urgency between:
+ *   1. ABSOLUTE urgency — based on raw days remaining until deadline
+ *   2. RELATIVE urgency — based on fraction of work window consumed
+ *
+ * This prevents tasks with short windows (e.g. created today, due tomorrow)
+ * from being wrongly classified as "rendah" just because fractionRemaining = 1.0.
+ *
+ * Absolute thresholds:
+ *   ≤ 2 days  → mendesak  (85–100)
+ *   ≤ 5 days  → tinggi    (60–84)
+ *   ≤ 14 days → sedang    (30–59)
+ *   > 14 days → rendah    (0–29)
+ *
+ * Relative thresholds (fraction of window remaining):
+ *   < 15%  → mendesak
+ *   < 35%  → tinggi
+ *   < 65%  → sedang
+ *   ≥ 65%  → rendah
  */
+const PRIORITY_RANK: Record<AIPriority, number> = { mendesak: 4, tinggi: 3, sedang: 2, rendah: 1 };
+
 export function computeAIPriority(
     startDate: string,
     deadlineDate: string
@@ -37,42 +47,81 @@ export function computeAIPriority(
     const daysToDeadline = daysBetween(today, deadlineDate);
     const totalWindow = daysBetween(startDate, deadlineDate);
 
-    // Overdue
-    if (daysToDeadline < 0) {
-        return { priority: "kritis", score: 100 };
+    // Overdue or same-day deadline
+    if (daysToDeadline <= 0) {
+        return { priority: "mendesak", score: 100 };
     }
 
-    // Window is 0 or negative (same-day task or bad input)
-    if (totalWindow <= 0) {
-        return { priority: "kritis", score: 100 };
-    }
-
-    // Fraction of window remaining
-    const fractionRemaining = daysToDeadline / totalWindow;
-
-    if (fractionRemaining < 0.15) {
-        return { priority: "kritis", score: Math.round(85 + (1 - fractionRemaining / 0.15) * 15) };
-    } else if (fractionRemaining < 0.35) {
-        return { priority: "mendesak", score: Math.round(60 + (0.35 - fractionRemaining) / 0.20 * 25) };
-    } else if (fractionRemaining < 0.65) {
-        return { priority: "normal", score: Math.round(30 + (0.65 - fractionRemaining) / 0.30 * 30) };
+    // --- Absolute urgency (based on raw days left) ---
+    let absPriority: AIPriority;
+    let absScore: number;
+    if (daysToDeadline <= 2) {
+        absPriority = "mendesak";
+        absScore = Math.round(85 + ((2 - daysToDeadline) / 2) * 15);
+    } else if (daysToDeadline <= 5) {
+        absPriority = "tinggi";
+        absScore = Math.round(60 + ((5 - daysToDeadline) / 3) * 25);
+    } else if (daysToDeadline <= 14) {
+        absPriority = "sedang";
+        absScore = Math.round(30 + ((14 - daysToDeadline) / 9) * 30);
     } else {
-        return { priority: "santai", score: Math.round(fractionRemaining > 1 ? 0 : (1 - fractionRemaining) * 30) };
+        absPriority = "rendah";
+        absScore = Math.max(0, Math.round(29 - (daysToDeadline - 14)));
+    }
+
+    // --- Relative urgency (based on fraction of window consumed) ---
+    // If window is invalid, fall back to absolute only
+    if (totalWindow <= 0) {
+        return { priority: "mendesak", score: 100 };
+    }
+
+    const fractionRemaining = daysToDeadline / totalWindow;
+    let relPriority: AIPriority;
+    let relScore: number;
+    if (fractionRemaining < 0.15) {
+        relPriority = "mendesak";
+        relScore = Math.round(85 + (1 - fractionRemaining / 0.15) * 15);
+    } else if (fractionRemaining < 0.35) {
+        relPriority = "tinggi";
+        relScore = Math.round(60 + (0.35 - fractionRemaining) / 0.20 * 25);
+    } else if (fractionRemaining < 0.65) {
+        relPriority = "sedang";
+        relScore = Math.round(30 + (0.65 - fractionRemaining) / 0.30 * 30);
+    } else {
+        relPriority = "rendah";
+        relScore = Math.max(0, Math.round((1 - fractionRemaining) * 30));
+    }
+
+    // Take whichever is MORE urgent
+    if (PRIORITY_RANK[absPriority] >= PRIORITY_RANK[relPriority]) {
+        return { priority: absPriority, score: absScore };
+    } else {
+        return { priority: relPriority, score: relScore };
     }
 }
 
+export function enrichTaskWithAIPriority(task: Task): Task {
+    const { priority, score } = computeAIPriority(task.startDate, task.deadlineDate);
+    return {
+        ...task,
+        aiPriority: priority,
+        aiUrgencyScore: score,
+    };
+}
+
+
 const PRIORITY_ORDER: Record<AIPriority, number> = {
-    kritis: 4,
-    mendesak: 3,
-    normal: 2,
-    santai: 1,
+    mendesak: 4,
+    tinggi: 3,
+    sedang: 2,
+    rendah: 1,
 };
 
 const PRIORITY_LABEL_ID: Record<AIPriority, string> = {
-    kritis: "Kritis",
     mendesak: "Mendesak",
-    normal: "Normal",
-    santai: "Santai",
+    tinggi: "Tinggi",
+    sedang: "Sedang",
+    rendah: "Rendah",
 };
 
 function formatDateDisplay(dateStr: string): string {
@@ -100,14 +149,14 @@ function buildReason(
     let urgencyVerdict = "";
     if (daysToDeadline < 0) {
         urgencyVerdict = `⛔ Tenggat sudah terlewat ${Math.abs(daysToDeadline)} hari — dijadwalkan pertama.`;
-    } else if (task.aiPriority === "kritis") {
-        urgencyVerdict = `🚨 Hanya tersisa ${daysToDeadline} hari dari total ${totalWindow} hari jendela waktu (${percentElapsed}% waktu sudah terpakai) — urgensi kritis.`;
     } else if (task.aiPriority === "mendesak") {
-        urgencyVerdict = `⚠️ Tersisa ${daysToDeadline} hari dari tenggat ${deadlineStr}. Jendela pengerjaan ${totalWindow} hari, sudah ${percentElapsed}% terpakai.`;
-    } else if (task.aiPriority === "normal") {
-        urgencyVerdict = `ℹ️ Masih ada ${daysToDeadline} hari menuju tenggat ${deadlineStr}. ${percentElapsed}% dari jendela pengerjaan telah berlalu.`;
+        urgencyVerdict = `🚨 Hanya tersisa ${daysToDeadline} hari dari total ${totalWindow} hari jendela waktu (${percentElapsed}% waktu sudah terpakai) — prioritas mendesak.`;
+    } else if (task.aiPriority === "tinggi") {
+        urgencyVerdict = `⚠️ Tersisa ${daysToDeadline} hari dari tenggat ${deadlineStr}. Jendela pengerjaan ${totalWindow} hari, sudah ${percentElapsed}% terpakai — prioritas tinggi.`;
+    } else if (task.aiPriority === "sedang") {
+        urgencyVerdict = `ℹ️ Masih ada ${daysToDeadline} hari menuju tenggat ${deadlineStr}. ${percentElapsed}% dari jendela pengerjaan telah berlalu — prioritas sedang.`;
     } else {
-        urgencyVerdict = `✅ Masih ada ${daysToDeadline} hari menuju tenggat ${deadlineStr} — waktu pengerjaan masih lapang.`;
+        urgencyVerdict = `✅ Masih ada ${daysToDeadline} hari menuju tenggat ${deadlineStr} — prioritas rendah.`;
     }
 
     return (

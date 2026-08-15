@@ -6,7 +6,8 @@ interface ScrollRevealProps {
   children: React.ReactNode;
   className?: string;
   delay?: number; // delay in ms
-  direction?: "up" | "down" | "left" | "right" | "scale";
+  direction?: "up" | "down" | "left" | "right" | "scale" | "fade";
+  once?: boolean;
 }
 
 export default function ScrollReveal({
@@ -14,6 +15,7 @@ export default function ScrollReveal({
   className = "",
   delay = 0,
   direction = "up",
+  once = true,
 }: ScrollRevealProps) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -23,12 +25,16 @@ export default function ScrollReveal({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          if (ref.current) observer.unobserve(ref.current);
+          if (once && ref.current) {
+            observer.unobserve(ref.current);
+          }
+        } else if (!once) {
+          setIsVisible(false);
         }
       },
       {
-        threshold: 0.1,
-        rootMargin: "0px 0px -30px 0px",
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
       }
     );
 
@@ -37,34 +43,36 @@ export default function ScrollReveal({
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [once]);
 
   const getDirectionClasses = () => {
     switch (direction) {
       case "up":
         return isVisible
           ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-10";
+          : "opacity-0 translate-y-8";
       case "down":
         return isVisible
           ? "opacity-100 translate-y-0"
-          : "opacity-0 -translate-y-10";
+          : "opacity-0 -translate-y-8";
       case "left":
         return isVisible
           ? "opacity-100 translate-x-0"
-          : "opacity-0 translate-x-10";
+          : "opacity-0 translate-x-8";
       case "right":
         return isVisible
           ? "opacity-100 translate-x-0"
-          : "opacity-0 -translate-x-10";
+          : "opacity-0 -translate-x-8";
       case "scale":
         return isVisible
           ? "opacity-100 scale-100"
-          : "opacity-0 scale-90";
+          : "opacity-0 scale-95";
+      case "fade":
+        return isVisible ? "opacity-100" : "opacity-0";
       default:
         return isVisible
           ? "opacity-100 translate-y-0"
-          : "opacity-0 translate-y-10";
+          : "opacity-0 translate-y-8";
     }
   };
 

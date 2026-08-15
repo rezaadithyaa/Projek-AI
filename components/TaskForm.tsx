@@ -12,6 +12,7 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [category, setCategory] = useState("Tugas Biasa");
     const [startDate, setStartDate] = useState(todayStr);
     const [deadlineDate, setDeadlineDate] = useState(todayStr);
     const [durationMinutes, setDurationMinutes] = useState(30);
@@ -27,6 +28,7 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
             id: Date.now(),
             title: title.trim(),
             description: description.trim() || undefined,
+            category: category || "Tugas Biasa",
             duration: durationMinutes / 60, // convert to hours
             startDate: startDate || todayStr,
             deadlineDate: deadlineDate || todayStr,
@@ -38,6 +40,7 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
         // Reset form
         setTitle("");
         setDescription("");
+        setCategory("Tugas Biasa");
         setStartDate(todayStr);
         setDeadlineDate(todayStr);
         setDurationMinutes(30);
@@ -96,6 +99,33 @@ export default function TaskForm({ onAddTask }: TaskFormProps) {
                         rows={2}
                         className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 resize-none"
                     />
+                </div>
+
+                {/* KATEGORI */}
+                <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                        KATEGORI <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative">
+                        <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            required
+                            className="w-full appearance-none rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm font-medium text-slate-800 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 cursor-pointer pr-10"
+                        >
+                            <option value="" disabled>Pilih Kategori...</option>
+                            <option value="Kuis">Kuis</option>
+                            <option value="Tugas Biasa">Tugas Biasa</option>
+                            <option value="Laporan / Makalah">Laporan / Makalah</option>
+                            <option value="Tubes / Project">Tubes / Project</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                            <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
 
                 {/* TANGGAL MULAI & TENGGAT */}
