@@ -452,7 +452,7 @@ export default function Home() {
                 Semua dalam Satu Tempat
               </h2>
               <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-                Dari manajemen tugas sederhana hingga penjadwalan AI otomatis — dirancang agar Anda tetap fokus dan produktif.
+                Dari manajemen tugas sederhana hingga penjadwalan AI otomatis dirancang agar Anda tetap fokus dan produktif.
               </p>
             </div>
           </ScrollReveal>
@@ -613,7 +613,7 @@ export default function Home() {
               </h2>
 
               <p className="text-slate-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-                Mulai kelola tugas Anda hari ini — gratis, tanpa daftar, langsung bisa digunakan.
+                Mulai kelola tugas Anda hari ini gratis, tanpa daftar, langsung bisa digunakan.
               </p>
 
               <div>
