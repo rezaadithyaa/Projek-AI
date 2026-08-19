@@ -262,7 +262,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-4 py-1.5 text-xs font-semibold text-emerald-800 shadow-xs mb-8">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
               <span className="h-2 w-2 rounded-full bg-emerald-500 absolute" />
-              Penjadwalan AI aktif — Gratis & tanpa akun
+              Penjadwalan AI aktif Gratis & tanpa akun
             </div>
           </ScrollReveal>
 
@@ -291,7 +291,7 @@ export default function Home() {
                 className="flex items-center gap-2 rounded-full bg-[#18181b] px-8 py-3.5 text-sm font-bold text-white shadow-xl shadow-slate-900/10 transition-all duration-300 hover:bg-slate-800 hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <span className="text-zinc-300">✦</span>
-                <span>Mulai Gratis — Sekarang</span>
+                <span>Mulai Gratis Sekarang</span>
               </button>
 
               <button
@@ -394,22 +394,7 @@ export default function Home() {
                 </div>
 
                 {/* MOCKUP FOOTER BAR */}
-                <div className="pt-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-zinc-900 mb-2">
-                    <span className="flex items-center gap-1">
-                      <span>✦</span> AI: Jadwal Optimal Dihitung
-                    </span>
-                    <span>Efisiensi 94%</span>
-                  </div>
-                  <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-zinc-700 via-zinc-900 to-black animate-pulse" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-
+                
         {/* FEATURE TICKER MARQUEE */}
         <ScrollReveal direction="up" delay={350} className="mt-16 overflow-hidden py-4 border-y border-slate-200/60">
           <div className="animate-marquee flex items-center gap-8 text-xs font-bold text-slate-500 uppercase tracking-wider">
