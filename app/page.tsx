@@ -394,7 +394,22 @@ export default function Home() {
                 </div>
 
                 {/* MOCKUP FOOTER BAR */}
-                
+                <div className="pt-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-zinc-900 mb-2">
+                    <span className="flex items-center gap-1">
+                      <span>✦</span> AI: Jadwal Optimal Dihitung
+                    </span>
+                    <span>Efisiensi 94%</span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-zinc-700 via-zinc-900 to-black animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+
         {/* FEATURE TICKER MARQUEE */}
         <ScrollReveal direction="up" delay={350} className="mt-16 overflow-hidden py-4 border-y border-slate-200/60">
           <div className="animate-marquee flex items-center gap-8 text-xs font-bold text-slate-500 uppercase tracking-wider">
