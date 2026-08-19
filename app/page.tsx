@@ -208,7 +208,31 @@ export default function Home() {
           </ScrollReveal>
         </div>
 
-          
+        {/* RIGHT FLANK FLOATING TELEMETRY WIDGETS (ANIMATED FADE-IN & SCROLL REVEAL) */}
+        <div className="hidden xl:flex flex-col gap-4 absolute right-4 2xl:right-12 top-20 z-20 pointer-events-auto max-w-[270px]">
+          {/* WIDGET 3: DAILY EFFICIENCY GAUGE */}
+          <ScrollReveal direction="right" delay={150}>
+            <div className="rounded-2xl border border-zinc-800/90 bg-zinc-950/95 p-4 text-white shadow-[0_15px_35px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300 hover:border-zinc-600 hover:scale-[1.03] group cursor-default">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <span>⚡</span> Skor Efisiensi
+                </span>
+                <span className="rounded-md bg-emerald-950/80 border border-emerald-800/60 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                  Optimal
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-black text-white">94%</div>
+                <div className="text-right">
+                  <span className="block text-[11px] font-bold text-emerald-400">+18% efisiensi</span>
+                  <span className="text-[10px] text-zinc-500">vs jadwal manual</span>
+                </div>
+              </div>
+              <div className="mt-2.5 h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
+                <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 animate-pulse" />
+              </div>
+            </div>
+          </ScrollReveal>
 
           {/* WIDGET 4: ON-DEVICE ZERO LATENCY SHIELD */}
           <ScrollReveal direction="right" delay={300}>
